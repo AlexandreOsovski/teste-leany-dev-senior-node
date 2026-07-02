@@ -2,16 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
+export let GLOBAL_MODULE_REF: any;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Global prefix
-  app.setGlobalPrefix('api/v1');
+  GLOBAL_MODULE_REF = app;
 
-  // CORS
   app.enableCors();
 
-  // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('Pokémon Trainers API')
     .setDescription(
@@ -28,7 +26,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // Start server
   const port = process.env.PORT || 3000;
   await app.listen(port);
 

@@ -49,4 +49,31 @@ export class PokeApiService implements IPokemonApi {
       return false;
     }
   }
+
+  async listPokemons(offset: number = 0, limit: number = 20): Promise<any> {
+    try {
+      const response = await this.client.get('/pokemon', {
+        params: { offset, limit },
+      });
+
+      // Enriquece com o ID extraído da URL
+      const results = response.data.results.map((pokemon: any) => {
+        const id = pokemon.url.split('/').filter(Boolean).pop();
+        return {
+          id: parseInt(id),
+          name: pokemon.name,
+          spriteUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+        };
+      });
+
+      return {
+        count: response.data.count,
+        next: response.data.next,
+        previous: response.data.previous,
+        results,
+      };
+    } catch (error) {
+      throw new Error(`Erro ao listar Pokémon: ${error.message}`);
+    }
+  }
 }

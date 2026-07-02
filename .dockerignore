@@ -1,0 +1,17 @@
+node_modules
+dist
+.git
+.gitignore
+*.md
+.env
+docker-compose.yml
+Dockerfile
+.dockerignore
+coverage
+test
+*.spec.ts
+*.test.ts
+logs
+tmp
+.cache
+.eslintcache

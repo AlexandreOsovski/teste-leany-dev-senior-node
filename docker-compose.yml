@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: pokemon_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-pokemon_db}
+      POSTGRES_USER: ${DB_USERNAME:-pokemon_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-pokemon_pass}
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pokemon_network
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${DB_USERNAME:-pokemon_admin} -d ${DB_DATABASE:-pokemon_db}',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pokemon_api
+    restart: unless-stopped
+    ports:
+      - '${PORT:-3000}:3000'
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-3000}
+      DB_HOST: postgres
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USERNAME: ${DB_USERNAME:-pokemon_admin}
+      DB_PASSWORD: ${DB_PASSWORD:-pokemon_pass}
+      DB_DATABASE: ${DB_DATABASE:-pokemon_db}
+      POKEAPI_BASE_URL: ${POKEAPI_BASE_URL:-https://pokeapi.co/api/v2}
+      VIACEP_BASE_URL: ${VIACEP_BASE_URL:-https://viacep.com.br/ws}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - pokemon_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  pokemon_network:
+    driver: bridge
+    name: pokemon_network

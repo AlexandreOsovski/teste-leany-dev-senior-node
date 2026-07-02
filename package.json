@@ -43,7 +43,7 @@
     "swagger-ui-express": "^5.0.0",
     "typeorm": "^0.3.19",
     "typescript-eslint": "^8.62.1",
-    "uuid": "^9.0.0"
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.3.0",
@@ -84,6 +84,9 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
+    "transformIgnorePatterns": [
+      "node_modules/(?!(uuid)/)"
+    ],
     "moduleNameMapper": {
       "^@core/(.*)$": "<rootDir>/core/$1",
       "^@modules/(.*)$": "<rootDir>/modules/$1",

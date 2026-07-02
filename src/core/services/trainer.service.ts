@@ -1,9 +1,13 @@
 import { Trainer } from '../domain/entities/trainer.entity';
 import { ITrainerRepository } from '../repositories/trainer.repository.interface';
 import { TrainerNotFoundException } from '../domain/exceptions/trainer-not-found.exception';
+import { Inject } from '@nestjs/common';
 
 export class TrainerService {
-  constructor(private readonly trainerRepository: ITrainerRepository) {}
+  constructor(
+    @Inject('ITrainerRepository')
+    private readonly trainerRepository: ITrainerRepository,
+  ) {}
 
   async createTrainer(data: { name: string; email: string }): Promise<Trainer> {
     const existingTrainer = await this.trainerRepository.findByEmail(

@@ -3,9 +3,11 @@ import { ITeamRepository } from '../repositories/team.repository.interface';
 import { PokemonService } from './pokemon.service';
 import { TeamFullException } from '../domain/exceptions/team-full.exception';
 import { DuplicatePokemonException } from '../domain/exceptions/duplicate-pokemon.exception';
+import { Inject } from '@nestjs/common';
 
 export class TeamService {
   constructor(
+    @Inject('ITeamRepository')
     private readonly teamRepository: ITeamRepository,
     private readonly pokemonService: PokemonService,
   ) {}

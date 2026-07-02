@@ -3,10 +3,13 @@ import { IPokemonRepository } from '../repositories/pokemon.repository.interface
 import { IPokemonApi } from '../integrations/pokemon-api.interface';
 import { PokemonNotFoundException } from '../domain/exceptions/pokemon-not-found.exception';
 import { POKEAPI_CONFIG } from '../../config/pokeapi.config';
+import { Inject } from '@nestjs/common';
 
 export class PokemonService {
   constructor(
+    @Inject('IPokemonRepository')
     private readonly pokemonRepository: IPokemonRepository,
+    @Inject('IPokemonApi')
     private readonly pokemonApi: IPokemonApi,
   ) {}
 

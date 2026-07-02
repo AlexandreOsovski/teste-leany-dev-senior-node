@@ -10,87 +10,72 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-  ApiQuery,
-} from '@nestjs/swagger';
-import { TrainerService } from '../../core/services/trainer.service';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { CreateTrainerUseCase } from '../../core/use-cases/trainers/create-trainer.use-case';
+import { GetTrainerUseCase } from '../../core/use-cases/trainers/get-trainer.use-case';
+import { ListTrainersUseCase } from '../../core/use-cases/trainers/list-trainers.use-case';
+import { UpdateTrainerUseCase } from '../../core/use-cases/trainers/update-trainer.use-case';
+import { DeleteTrainerUseCase } from '../../core/use-cases/trainers/delete-trainer.use-case';
+import { RestoreTrainerUseCase } from '../../core/use-cases/trainers/restore-trainer.use-case';
 import { CreateTrainerDto } from './dto/create-trainer.dto';
 import { UpdateTrainerDto } from './dto/update-trainer.dto';
 
 @ApiTags('Trainers')
-@Controller('api/v1/trainers')
+@Controller('trainers')
 export class TrainersController {
-  constructor(private readonly trainerService: TrainerService) {}
+  constructor(
+    private readonly createTrainerUseCase: CreateTrainerUseCase,
+    private readonly getTrainerUseCase: GetTrainerUseCase,
+    private readonly listTrainersUseCase: ListTrainersUseCase,
+    private readonly updateTrainerUseCase: UpdateTrainerUseCase,
+    private readonly deleteTrainerUseCase: DeleteTrainerUseCase,
+    private readonly restoreTrainerUseCase: RestoreTrainerUseCase,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Criar novo treinador' })
   @ApiResponse({ status: 201, description: 'Treinador criado com sucesso' })
-  @ApiResponse({ status: 409, description: 'Email já cadastrado' })
-  @ApiResponse({ status: 400, description: 'Dados inválidos' })
   async create(@Body() createTrainerDto: CreateTrainerDto) {
-    return this.trainerService.createTrainer(createTrainerDto);
+    return this.createTrainerUseCase.execute(createTrainerDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Listar treinadores' })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Lista de treinadores' })
   async findAll(@Query('page') page?: number, @Query('limit') limit?: number) {
-    return this.trainerService.getAllTrainers({ page, limit });
+    return this.listTrainersUseCase.execute({ page, limit });
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Buscar treinador por ID' })
-  @ApiParam({ name: 'id', description: 'ID do treinador' })
   @ApiResponse({ status: 200, description: 'Treinador encontrado' })
   @ApiResponse({ status: 404, description: 'Treinador não encontrado' })
   async findOne(@Param('id') id: string) {
-    return this.trainerService.getTrainerById(id);
+    return this.getTrainerUseCase.execute(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Atualizar treinador' })
-  @ApiParam({ name: 'id', description: 'ID do treinador' })
   @ApiResponse({ status: 200, description: 'Treinador atualizado' })
-  @ApiResponse({ status: 404, description: 'Treinador não encontrado' })
-  @ApiResponse({ status: 409, description: 'Email já cadastrado' })
   async update(
     @Param('id') id: string,
     @Body() updateTrainerDto: UpdateTrainerDto,
   ) {
-    return this.trainerService.updateTrainer(id, updateTrainerDto);
+    return this.updateTrainerUseCase.execute({ id, ...updateTrainerDto });
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Soft delete do treinador' })
-  @ApiParam({ name: 'id', description: 'ID do treinador' })
   @ApiResponse({ status: 204, description: 'Treinador desativado' })
-  @ApiResponse({ status: 404, description: 'Treinador não encontrado' })
   async remove(@Param('id') id: string) {
-    await this.trainerService.softDeleteTrainer(id);
+    await this.deleteTrainerUseCase.execute(id);
   }
 
   @Patch(':id/restore')
   @ApiOperation({ summary: 'Restaurar treinador' })
-  @ApiParam({ name: 'id', description: 'ID do treinador' })
   @ApiResponse({ status: 200, description: 'Treinador restaurado' })
-  @ApiResponse({ status: 404, description: 'Treinador não encontrado' })
   async restore(@Param('id') id: string) {
-    return this.trainerService.restoreTrainer(id);
+    return this.restoreTrainerUseCase.execute(id);
   }
-
-  // @Patch(':id/address')
-  // @ApiOperation({ summary: 'Atualizar endereço via CEP' })
-  // @ApiParam({ name: 'id', description: 'ID do treinador' })
-  // @ApiResponse({ status: 200, description: 'Endereço atualizado' })
-  // @ApiResponse({ status: 404, description: 'Treinador ou CEP não encontrado' })
-  // async updateAddress(@Param('id') id: string, @Body('cep') cep: string) {
-  //   return { message: 'Endpoint em implementação' };
-  // }
 }
