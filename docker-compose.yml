@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:17-alpine
     container_name: pokemon_postgres
     restart: unless-stopped
     environment:
@@ -24,6 +24,25 @@ services:
       retries: 10
       start_period: 10s
 
+  mongodb:
+    image: mongo:7
+    container_name: pokemon_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE:-pokemon_logs}
+    ports:
+      - '${MONGODB_PORT:-27017}:27017'
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - pokemon_network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
   app:
     build:
       context: .
@@ -40,16 +59,26 @@ services:
       DB_USERNAME: ${DB_USERNAME:-pokemon_admin}
       DB_PASSWORD: ${DB_PASSWORD:-pokemon_pass}
       DB_DATABASE: ${DB_DATABASE:-pokemon_db}
+      MONGODB_URI: mongodb://mongodb:27017/${MONGODB_DATABASE:-pokemon_logs}
+      MONGODB_DATABASE: ${MONGODB_DATABASE:-pokemon_logs}
       POKEAPI_BASE_URL: ${POKEAPI_BASE_URL:-https://pokeapi.co/api/v2}
       VIACEP_BASE_URL: ${VIACEP_BASE_URL:-https://viacep.com.br/ws}
+    volumes:
+      - .:/app
+      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
+      mongodb:
+        condition: service_healthy
     networks:
       - pokemon_network
+    command: npm run start:dev
 
 volumes:
   postgres_data:
+    driver: local
+  mongodb_data:
     driver: local
 
 networks:

@@ -1,0 +1,10 @@
+{
+  "GHSA-72gw-mp4g-v24j": {
+    "active": true,
+    "notes": "Aguardando correção no multer - não há alternativa viável no momento"
+  },
+  "GHSA-3p4h-7m6x-2hcm": {
+    "active": true,
+    "notes": "Aguardando correção no multer - não há alternativa viável no momento"
+  }
+}

@@ -9,14 +9,18 @@ import { CepModule } from './modules/cep/cep.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { ValidationPipe } from './common/pipes/validation.pipe';
-import databaseConfig from './config/database.config';
+import databaseConfig from './config/database/database.config';
 import redisConfig from './config/redis.config';
+import { MongoDBModule } from '@modules/infrastructure/database/mongoDB/mongodb.module';
+import { MongoDBLogsModule } from '@modules/infrastructure/database/mongoDB/mongodb-logs.module';
+import mongodbConfig from '@config/database/mongodb.config';
+import { LoggingInterceptor } from '@common/interceptors/logging.interceptor';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, redisConfig],
+      load: [databaseConfig, redisConfig, mongodbConfig],
       envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({
@@ -31,6 +35,8 @@ import redisConfig from './config/redis.config';
     TeamsModule,
     PokemonModule,
     CepModule,
+    MongoDBModule,
+    MongoDBLogsModule,
   ],
   providers: [
     {
@@ -44,6 +50,10 @@ import redisConfig from './config/redis.config';
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
     },
   ],
 })

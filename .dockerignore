@@ -6,11 +6,10 @@ dist
 .env
 docker-compose.yml
 Dockerfile
+Dockerfile.dev
 .dockerignore
 coverage
 test
-*.spec.ts
-*.test.ts
 logs
 tmp
 .cache
